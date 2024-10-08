@@ -1,0 +1,59 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import torchvision
+import torchvision.transforms as transforms
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+from torch.utils.data import Dataset, DataLoader
+import pandas as pd
+import requests
+import zipfile
+from io import BytesIO
+from PIL import Image
+from pathlib import Path
+
+import os
+def walk_through_dir(dir_path):
+  """
+  Walks through dir_path returning its contents.
+  Args:
+    dir_path (str or pathlib.Path): target directory
+  
+  Returns:
+    A print out of:
+      number of subdiretories in dir_path
+      number of images (files) in each subdirectory
+      name of each subdirectory
+  """
+  for dirpath, dirnames, filenames in os.walk(dir_path):
+    print(f"There are {len(dirnames)} directories and {len(filenames)} images in '{dirpath}'.")
+
+# Make function to find classes in target directory
+def find_classes(directory: str) -> Tuple[List[str], Dict[str, int]]:
+    """Finds the class folder names in a target directory.
+    
+    Assumes target directory is in standard image classification format.
+
+    Args:
+        directory (str): target directory to load classnames from.
+
+    Returns:
+        Tuple[List[str], Dict[str, int]]: (list_of_class_names, dict(class_name: idx...))
+    
+    Example:
+        find_classes("food_images/train")
+        >>> (["class_1", "class_2"], {"class_1": 0, ...})
+    """
+    # 1. Get the class names by scanning the target directory
+    classes = sorted(entry.name for entry in os.scandir(directory) if entry.is_dir())
+    
+    # 2. Raise an error if class names not found
+    if not classes:
+        raise FileNotFoundError(f"Couldn't find any classes in {directory}.")
+        
+    # 3. Create a dictionary of index labels (computers prefer numerical rather than string labels)
+    class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
+    return classes, class_to_idx
